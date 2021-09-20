@@ -1,4 +1,4 @@
-DreamTeam Sprint 1
+﻿DreamTeam Sprint 1
 
 El proyecto a realizar es ...
 
@@ -13,3 +13,26 @@ implementación de IoT, soy de Bogotá.
 Julián Ruiz Piedrahíta
 Estudiante de Ingeniería de Sistemas.
 Actualmente resido en Copacabana, Antioquia.
+
+Jose
+
+
+
+
+
+
+
+
+Carlos
+
+
+
+
+
+
+
+
+Rodrigo Fernando Obregon Romero
+Soy Ingeniero Electronico
+Naci en Guapi, Cauca
+Mi enfoque profesional es la automatizacion
