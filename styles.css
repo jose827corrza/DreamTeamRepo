@@ -1,0 +1,13 @@
+.titulos{
+    text-align: center;
+    font-size: xx-large;
+    font-style: inherit;
+    color: magenta;
+}
+.form_control{
+    align-self: center;
+}
+.img-fluid{
+    height: 10cm;
+    width: 10cm;
+}
