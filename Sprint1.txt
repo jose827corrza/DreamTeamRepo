@@ -25,8 +25,6 @@ Soy estudiante de ingenieria en telecomunicaciones
 Me gusta el desarrollo web y la ciencia de datos
 Soy de Santa Rosa de Osos y ahora vivo en Medellin.
 
-
-
 Daniel Montoya
 Soy Biólogo egresado de la Universidad EAFIT.
 Mis intereses profesionales residen en la investigación y la ciencia de datos
