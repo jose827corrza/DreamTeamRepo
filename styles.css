@@ -2,12 +2,15 @@
     text-align: center;
     font-size: xx-large;
     font-style: inherit;
-    color: magenta;
+    color:lightcoral;
 }
 .form_control{
     align-self: center;
 }
-.img-fluid{
-    height: 10cm;
-    width: 10cm;
+h5{
+    color: lightblue;
+}
+.carousel img{
+    width: auto;
+    max-height: 800px;
 }
