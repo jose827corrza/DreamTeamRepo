@@ -38,6 +38,9 @@ const btnModPerfil = document.getElementById('edicion-perfil');
 const btnActPerfil = document.getElementById('guardarCambios');
 const btnCancelarActPerfil = document.getElementById('cancelarCambios');
 const formServicios = document.getElementById('segunda-columna');
+var githubInfo = document.getElementById('modificarGithub');
+var telefonoInfo = document.getElementById('modificarTelefono');
+var ubicacionInfo = document.getElementById('modificarUbicacion');
 
 
 //Funciones
@@ -94,10 +97,12 @@ function pintarServiciosActuales(servicios) {
     serviciosActuales.innerHTML = contenidoHtml
 }
 
-// function pintarDatosUsuario(datos){
-//     datos.
+function pintarDatosUsuario(datos){
+    telefonoInfo = datos.Telefono ? datos.Telefono:"";
+    githubInfo = datos.Github ? datos.Github:"";
+    ubicacionInfo = datos.Ubicacion ? datos.Ubicacion:"";
     
-// }
+}
 
 
 //"imprime" el listado de los servicios que se pueden eliminar
@@ -110,6 +115,32 @@ function pintarServiciosActualesBorrar(servicios) {
     });
     serviciosEliminables.innerHTML = contenidoHtml
 }
+
+//Prepara variables para infor del usuario
+async function agregarDatos(telefono, github, ubicacion, usuario){
+    const datos = {
+        id: uuid.v4(),
+        Telefono: telefono,
+        Github: github,
+        Ubicacion: ubicacion,
+        user: usuario
+    }
+    const resultado = await guardarDatos(datos)
+    console.log(resultado);
+}
+
+//Esta funcion hace la de guardar los datos de usuario en la lista correspondiente
+async function guardarDatos(task) {
+    try {
+        const respuesta = await database.collection('datos-usuarios').add(task)
+        //doc(id).
+        return respuesta
+    } catch (error) {
+        console.error(error)
+        throw new Error(error)
+    }
+}
+
 //Prepara las variables que se van a  guardar en el documento
 async function agregarServicio(nServicio, descrip) {
     const datos = {
@@ -171,7 +202,7 @@ async function eliminarServicio(servicioEliminar) {
 }
 
 //Esta funcion trae los valores del documento donde se almacena informacion del usuario
-async function leerDatosUsuario(usuario){
+function leerDatosUsuario(usuario){
     // const recibirDatos = await database.collection('datos-usuarios').where("user", "==", usuario).get();
     // let datos = [];
     
@@ -238,14 +269,20 @@ btnEliminar.addEventListener('click', (e) => {
 btnModPerfil.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('formActualizacionDatos').classList.remove('visually-hidden');
-    let ss = leerDatosUsuario(usuarioActual.email)
-    console.log(ss);
+    let ss = leerDatosUsuario(usuarioActual.email);
+    console.log("<--->");
+    //pintarDatosUsuario(ss);
 })
 //Boton actualizar perfil
 btnActPerfil.addEventListener('click', (e) => {
     e.preventDefault();
-    //let datos = await leerDatosUsuario()
-    pintarDatosUsuario(datos);
+    let datos = leerDatosUsuario(usuarioActual.email);
+    console.log(datos);
+    agregarDatos(telefonoInfo.value, githubInfo.value, ubicacionInfo.value, usuarioActual.email);
+    console.log('revisa el firebase');
+    document.getElementById('formActualizacionDatos').classList.add('visually-hidden');
+    
+    
 
 })
 //Boton cancelar Act. perfil
