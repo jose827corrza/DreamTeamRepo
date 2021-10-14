@@ -41,6 +41,10 @@ const formServicios = document.getElementById('segunda-columna');
 var githubInfo = document.getElementById('modificarGithub');
 var telefonoInfo = document.getElementById('modificarTelefono');
 var ubicacionInfo = document.getElementById('modificarUbicacion');
+var idDatosUsuario;
+
+//observador();
+
 
 
 //Funciones
@@ -48,17 +52,17 @@ var ubicacionInfo = document.getElementById('modificarUbicacion');
 async function login() {
     try {
         const respuesta = await auth.signInWithPopup(proveedor)
-        console.log(respuesta.user.displayName);
+        //console.log(respuesta.user.displayName);
         usuarioActual = respuesta.user;
-        console.log(usuarioActual);
+        //console.log(usuarioActual.displayName);
 
-        listaServicios = await leerServicios(usuarioActual.email)
+        listaServicios = await leerServicios(usuarioActual.email);
         imgProfile.classList.remove('visually-hidden');
         pieImg.innerText = usuarioActual.displayName;
-        imgProfile.src = usuarioActual.photoURL;
+        imgProfile.src = '' ? "https://www.seekpng.com/png/full/115-1150053_avatar-png-transparent-png-royalty-free-default-user.png" : usuarioActual.photoURL; //
         btnModPerfil.classList.remove('visually-hidden');
         formServicios.classList.remove('visually-hidden');
-        console.log("Esta es la lista de servicios: -->" + listaServicios);
+        //console.log("Esta es la lista de servicios: -->" + listaServicios);
         pintarServiciosActuales(listaServicios);
         pintarServiciosActualesBorrar(listaServicios);
     } catch (error) {
@@ -71,12 +75,23 @@ function logOut() {
     auth.signOut();
 }
 
+
 //Esta es la funcion que se encarga de hacerr la lectura de los servicios de cada usuario
 async function leerServicios(usuario) {//<---Como argumento se puede meter el correo del usuario actual para que cargue solo la info del fulano
     let servicios = [];
     const resumenS = await database.collection('servicios-usuarios').where("user", "==", usuario).get();
+    // .then((uuu) => {
+    //     uuu.forEach((doc) => {
+    //         //console.log(doc.id, "==>", doc.data());
+    //         servicios.push(doc.data().nombreServicio);
+    //     })
+
+    // }).catch((error) => {
+    //     console.log("Error getting document:", error);
+    // });
+
     resumenS.forEach((doc) => {
-        console.log(doc.id, "==>", doc.data());
+        //console.log(doc.id, "==>", doc.data());
         servicios.push(doc.data().nombreServicio);
 
 
@@ -97,12 +112,6 @@ function pintarServiciosActuales(servicios) {
     serviciosActuales.innerHTML = contenidoHtml
 }
 
-function pintarDatosUsuario(datos){
-    telefonoInfo = datos.Telefono ? datos.Telefono:"";
-    githubInfo = datos.Github ? datos.Github:"";
-    ubicacionInfo = datos.Ubicacion ? datos.Ubicacion:"";
-    
-}
 
 
 //"imprime" el listado de los servicios que se pueden eliminar
@@ -117,7 +126,7 @@ function pintarServiciosActualesBorrar(servicios) {
 }
 
 //Prepara variables para infor del usuario
-async function agregarDatos(telefono, github, ubicacion, usuario){
+async function agregarDatos(telefono, github, ubicacion, usuario) {
     const datos = {
         id: uuid.v4(),
         Telefono: telefono,
@@ -125,14 +134,14 @@ async function agregarDatos(telefono, github, ubicacion, usuario){
         Ubicacion: ubicacion,
         user: usuario
     }
-    const resultado = await guardarDatos(datos)
-    console.log(resultado);
+    const resultado = await actualizarDatosUsuario(datos)
+    //console.log(resultado);
 }
 
 //Esta funcion hace la de guardar los datos de usuario en la lista correspondiente
-async function guardarDatos(task) {
+async function actualizarDatosUsuario(task) {
     try {
-        const respuesta = await database.collection('datos-usuarios').add(task)
+        const respuesta = await database.collection('datos-usuarios').doc(idDatosUsuario).update(task)
         //doc(id).
         return respuesta
     } catch (error) {
@@ -151,7 +160,7 @@ async function agregarServicio(nServicio, descrip) {
         descripcion: descrip
     }
     const resultado = await guardarServicio(nServicio, datos)
-    console.log(resultado);
+    //console.log(resultado);
     //listaServicios = await leerServicios()
     //pintar<-----
 }
@@ -174,7 +183,7 @@ async function actualizarDatos() {
 
 }
 //Cada vez que esta es llamada obliga a hacer una actualizacion de los servicios
-function actualizarDatosBorrado(aBorrar){// <--Aca toca meter el nombre del servicio a borrar
+function actualizarDatosBorrado(aBorrar) {// <--Aca toca meter el nombre del servicio a borrar
     let pedazoHTML = document.getElementById(aBorrar);
     serviciosActuales.removeChild(pedazoHTML);
     serviciosEliminables.removeChild(pedazoHTML);
@@ -195,43 +204,77 @@ async function eliminarServicio(servicioEliminar) {
     // })
     // console.log('Eliminados: ');
     await database.collection('servicios-usuarios').doc(servicioEliminar).delete()
-    console.log('Se ha eliminado -> '+servicioEliminar);
+    console.log('Se ha eliminado -> ' + servicioEliminar);
     actualizarDatosBorrado(servicioEliminar);
 
 
 }
 
-//Esta funcion trae los valores del documento donde se almacena informacion del usuario
-function leerDatosUsuario(usuario){
-    // const recibirDatos = await database.collection('datos-usuarios').where("user", "==", usuario).get();
-    // let datos = [];
-    
-    // recibirDatos.forEach((doc) => {
-    //     //console.log(doc.id, "==>", doc.data().nombreServicio);
-    //     datos.push(doc.data());
+
+//Funcion extractora datos
+function extraccion(doc){
+    // Expresion ? val1 : val2 <-- Si es true devuelve el val1
+    telefonoInfo.value = '' ? '':doc.data().Telefono;//<---- ASi se usan los ternarios
+    githubInfo.value = '' ? '' : doc.data().Github;
+    ubicacionInfo.value = '' ? '' : doc.data().Ubicacion;
+    idDatosUsuario = doc.id;
+    //console.log(doc.id);
 
 
-    // })
-
-    // return datos;
-    let datos = [];
-    database.collection('datos-usuarios').where("user", "==", usuario).get()
-    .then((doc) => {
-        doc.forEach((doc) => {
-                console.log(doc.id, "==>", doc.data());
-                datos.push(doc.data());
-        })
-    }).catch((error) => {
-        console.log("Error getting document:", error);
-    });
-    return datos;
 }
+//Esta funcion trae los valores del documento donde se almacena informacion del usuario
+//-->> Es MUUUUy Importante aclarar que es mas facil extraer la informacion por medio de una funcion!!!!!!!!!!
+function leerDatosUsuario(usuario) {
+    //var datos;
+    database.collection('datos-usuarios').where("user", "==", usuario).get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+                //console.log(doc.id, " => ", doc.data());
+                //datos = doc.data();
+                //console.log(datos);
+                extraccion(doc);
+            });
+
+        })
+
+}
+
+async function observador() {
+    listaServicios = await leerServicios('corredor.jose@fuac.edu.co');
+    firebase.auth().onAuthStateChanged((user) => {
+
+        if (user) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            var uid = user.uid;
+            console.log('Se ha ingresado con usuario: ' + user.displayName);
+            console.log(user.email);
+
+            imgProfile.classList.remove('visually-hidden');
+            pieImg.innerText = user.displayName;
+            imgProfile.src = user.photoURL;
+            btnModPerfil.classList.remove('visually-hidden');
+            formServicios.classList.remove('visually-hidden');
+            //pintarServiciosActuales(listaServicios);
+            //pintarServiciosActualesBorrar(listaServicios);
+            btnRegistro.classList.add('visually-hidden')
+            btnLogOut.classList.remove('visually-hidden')
+            console.log(listaServicios);
+            // ...
+        } else {
+            // User is signed out
+            // ...
+            console.log('no hay usuario...');
+        }
+    });
+}
+
 //Eventos
 //Boton Login
 btnLogin.addEventListener('click', (e) => {
     login()
-    btnRegistro.classList.add('visually-hidden')
-    btnLogOut.classList.remove('visually-hidden')
+
 
 
 })
@@ -245,7 +288,7 @@ anadirServicio.addEventListener('click', (e) => {
     let titulo = anadirServicioTitulo.value;
     let descripcion = anadirServicioDescripcion.value;
     e.preventDefault();
-    console.log(titulo + "-->" + descripcion);
+    //console.log(titulo + "-->" + descripcion);
     if (titulo != "") {
         agregarServicio(titulo, descripcion)
 
@@ -269,24 +312,31 @@ btnEliminar.addEventListener('click', (e) => {
 btnModPerfil.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('formActualizacionDatos').classList.remove('visually-hidden');
+    console.log(usuarioActual.email);
     let ss = leerDatosUsuario(usuarioActual.email);
-    console.log("<--->");
+    console.log(ss);
     //pintarDatosUsuario(ss);
 })
 //Boton actualizar perfil
 btnActPerfil.addEventListener('click', (e) => {
     e.preventDefault();
     let datos = leerDatosUsuario(usuarioActual.email);
-    console.log(datos);
+    //console.log(datos);
     agregarDatos(telefonoInfo.value, githubInfo.value, ubicacionInfo.value, usuarioActual.email);
-    console.log('revisa el firebase');
+    //console.log('revisa el firebase');
     document.getElementById('formActualizacionDatos').classList.add('visually-hidden');
-    
-    
+    telefonoInfo.value = '';
+    githubInfo.value = '';
+    ubicacionInfo.value = '';
+
+
 
 })
 //Boton cancelar Act. perfil
 btnCancelarActPerfil.addEventListener('click', (e) => {
     e.preventDefault();
-    
+    document.getElementById('formActualizacionDatos').classList.add('visually-hidden');
+    telefonoInfo.value = '';
+    githubInfo.value = '';
+    ubicacionInfo.value = '';
 })
